@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>TruckLucro | Lucro do Frete</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:#0b1424;color:#f4f7fb;font-family:Arial,sans-serif;padding:20px}
+
+main{max-width:520px;margin:auto}
+
+header{text-align:center;padding:20px 0}
+
+h1{color:#ff9d28;margin-bottom:8px}
+
+p{color:#bdc8d8;line-height:1.5}
+
+form{background:#152238;padding:20px;border-radius:16px}
+
+label{display:block;margin-top:14px;font-size:14px;color:#e1e8f1}
+
+input{width:100%;padding:13px;margin-top:7px;border:1px solid #354761;border-radius:9px;background:#0b1424;color:white;font-size:16px}
+
+button{width:100%;padding:15px;margin-top:20px;border:0;border-radius:10px;background:#ff9d28;color:#172033;font-size:17px;font-weight:bold}
+
+#resultado{display:none;background:#152238;margin-top:18px;padding:20px;border-radius:16px}
+
+.valor{font-size:27px;color:#ffb44f;font-weight:bold}
+
+.linha{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #354761}
+
+small{color:#bdc8d8}
+
+</style>
+
+</head>
+
+<body>
+
+<main>
+
+<header>
+
+<h1>🚛 TruckLucro</h1>
+
+<p>Descubra quanto realmente sobra do seu frete.</p>
+
+</header>
+
+<form id="form">
+
+<label>Valor total do frete (R$)</label>
+
+<input id="frete" type="number" min="0" step="0.01" placeholder="Ex.: 6000" required>
+
+<label>Quilômetros totais (ida e volta)</label>
+
+<input id="km" type="number" min="1" step="1" placeholder="Ex.: 1200" required>
+
+<label>Consumo médio do caminhão (km/L)</label>
+
+<input id="consumo" type="number" min="0.1" step="0.1" placeholder="Ex.: 2.5" required>
+
+<label>Preço do diesel por litro (R$)</label>
+
+<input id="diesel" type="number" min="0" step="0.01" placeholder="Ex.: 6.20" required>
+
+<label>Pedágios totais (R$)</label>
+
+<input id="pedagio" type="number" min="0" step="0.01" value="0" required>
+
+<label>Arla 32 (R$)</label>
+
+<input id="arla" type="number" min="0" step="0.01" value="0" required>
+
+<label>Pneus e manutenção por km (R$)</label>
+
+<input id="manutencao" type="number" min="0" step="0.01" placeholder="Ex.: 0.35" value="0.35" required>
+
+<label>Alimentação, estacionamento e outros (R$)</label>
+
+<input id="outros" type="number" min="0" step="0.01" value="0" required>
+
+<label>Comissão e impostos do frete (R$)</label>
+
+<input id="taxas" type="number" min="0" step="0.01" value="0" required>
+
+<button type="submit">CALCULAR MEU LUCRO</button>
+
+</form>
+
+<section id="resultado">
+
+<h2>📊 Resultado do frete</h2>
+
+<p>Lucro estimado</p>
+
+<div class="valor" id="lucro"></div>
+
+<div class="linha"><span>Combustível</span><b id="comb"></b></div>
+
+<div class="linha"><span>Pedágios</span><b id="ped"></b></div>
+
+<div class="linha"><span>Arla 32</span><b id="ar"></b></div>
+
+<div class="linha"><span>Manutenção e pneus</span><b id="man"></b></div>
+
+<div class="linha"><span>Outras despesas</span><b id="out"></b></div>
+
+<div class="linha"><span>Comissões e impostos</span><b id="tax"></b></div>
+
+<div class="linha"><span>Total de custos</span><b id="total"></b></div>
+
+<div class="linha"><span>Lucro por km</span><b id="porKm"></b></div>
+
+<div class="linha"><span>Margem de lucro</span><b id="margem"></b></div>
+
+<p id="aviso"></p>
+
+<small>Estimativa: inclua também parcelas, seguro, documentação e demais custos fixos para conhecer o lucro real.</small>
+
+<button type="button" onclick="window.print()">Salvar ou imprimir resultado</button>
+
+</section>
+
+</main>
+
+<script>
+
+const dinheiro=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+document.getElementById('form').addEventListener('submit',function(e){
+
+e.preventDefault();
+
+const v=id=>Number(document.getElementById(id).value)||0;
+
+const frete=v('frete'),km=v('km'),consumo=v('consumo'),diesel=v('diesel');
+
+if(km<=0||consumo<=0){alert('Informe quilômetros e consumo válidos.');return;}
+
+const comb=km/consumo*diesel;
+
+const ped=v('pedagio'),ar=v('arla'),man=km*v('manutencao');
+
+const out=v('outros'),tax=v('taxas');
+
+const total=comb+ped+ar+man+out+tax;
+
+const lucro=frete-total;
+
+document.getElementById('lucro').textContent=dinheiro(lucro);
+
+document.getElementById('comb').textContent=dinheiro(comb);
+
+document.getElementById('ped').textContent=dinheiro(ped);
+
+document.getElementById('ar').textContent=dinheiro(ar);
+
+document.getElementById('man').textContent=dinheiro(man);
+
+document.getElementById('out').textContent=dinheiro(out);
+
+document.getElementById('tax').textContent=dinheiro(tax);
+
+document.getElementById('total').textContent=dinheiro(total);
+
+document.getElementById('porKm').textContent=dinheiro(lucro/km);
+
+document.getElementById('margem').textContent=(lucro/frete*100||0).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+
+document.getElementById('aviso').textContent=lucro<0?'⚠️ Este frete gera prejuízo com os valores informados.':'Confira se todos os custos foram incluídos.';
+
+document.getElementById('resultado').style.display='block';
+
+document.getElementById('resultado').scrollIntoView({behavior:'smooth'});
+
+});
+
+</script>
+
+</body>
+
+</html>
